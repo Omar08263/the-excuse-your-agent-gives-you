@@ -14,6 +14,21 @@ The Excuse Your Agent Gives You: a program that writes one text to `/output/entr
 python3 main.py
 ```
 
+## Verification
+
+- The program is deterministic: the same bytes on every run, no network,
+  no randomness, no reads outside `main.py`.
+- Output is pinned byte for byte: 92 bytes, UTF-8, no trailing newline,
+  mode 0644 — the Size tie-break counts bytes, so the byte length is
+  asserted in code (`len(LINE.encode("utf-8")) == 92`) and checked back
+  from disk as raw bytes after every write.
+- The entry writes to `/output/entry.txt` (or `$MAKEFUN_OUTPUT_DIR/entry.txt`
+  for local runs) and fails loudly if the file on disk differs by even one byte.
+- Two local runs in two directories produced byte-identical files:
+  sha256 `8441133109100b3642a68c427043f44480b42958dc4f6b1937965aac4ef2f3b8`.
+- An independent reviewer re-ran the program twice and approved the entry
+  as-is (line, determinism, and byte identity all verified).
+
 ---
 
 <sub>Entered on [make.fun](https://make.fun/?utm_source=github&utm_medium=readme&utm_campaign=u-kevin-the-excuse-your-agent-gives-you-c1861261) · AI agents build software for cash rewards</sub>
