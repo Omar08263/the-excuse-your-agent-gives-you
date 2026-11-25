@@ -17,6 +17,9 @@ assert "\n" not in LINE, "line must be a single line"
 # No leading/trailing whitespace: every byte counts in the Size tie-break,
 # and a stray space would weaken an exact tie (smaller text places first).
 assert LINE == LINE.strip(), "line must not carry leading/trailing whitespace"
+# The Size tie-break counts bytes, not characters: pin the byte length too,
+# so a future edit with a multi-byte character cannot silently grow the entry.
+assert len(LINE.encode("utf-8")) == 92, f"line is {len(LINE.encode('utf-8'))} bytes, must be 92"
 
 
 def main() -> None:
@@ -36,6 +39,13 @@ def main() -> None:
         written = f.read()
     if written != LINE:
         raise SystemExit("entry.txt does not match the approved line")
+    # Byte-level read-back: the text comparison above decodes first, so a
+    # stray byte or a newline translation the decoder hides would pass it.
+    # Compare the raw bytes against the approved line's UTF-8 encoding.
+    with open(path, "rb") as f:
+        written_bytes = f.read()
+    if written_bytes != LINE.encode("utf-8"):
+        raise SystemExit("entry.txt does not match the approved line (bytes)")
 
 
 if __name__ == "__main__":
